@@ -37,13 +37,10 @@ public class NotebookFilter implements Filter {
         if (!process((HttpServletRequest)request, (HttpServletResponse)response)) {
             chain.doFilter(request, response);
         }
-
-
-
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
         this.application = JakartaServletWebApplication.buildApplication(filterConfig.getServletContext());
         this.templateEngine = buildTemplateEngine(this.application);
 
@@ -53,10 +50,11 @@ public class NotebookFilter implements Filter {
 
         final WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(application);
 
+
         // HTML is the default mode, but we will set it anyway for better understanding of code
         templateResolver.setTemplateMode(TemplateMode.HTML);
         // This will convert "home" to "/WEB-INF/templates/home.html"
-        templateResolver.setPrefix("/WEB-INF/templates/");
+        templateResolver.setPrefix("/templates/");
         templateResolver.setSuffix(".html");
         // Set template cache TTL to 1 hour. If not set, entries would live in cache until expelled by LRU
         templateResolver.setCacheTTLMs(3600000L);

@@ -9,19 +9,26 @@ import org.thymeleaf.web.IWebExchange;
 import java.io.Writer;
 import java.util.List;
 
-public class CategoryListController implements INotebookController {
+public class HomeController implements INotebookController {
+
+    private String var;
+
+    public HomeController(){
+        var = "Hello World";
+    }
 
 
     @Override
-    public void process(IWebExchange webExchange, ITemplateEngine templateEngine, Writer writer) throws Exception {
+    public void process(IWebExchange webExchange, ITemplateEngine templateEngine, Writer writer) {
 
         final CategoryService categoryService = new CategoryService();
         final List<Category> allCategories = categoryService.findAll();
 
         final WebContext ctx = new WebContext(webExchange, webExchange.getLocale());
         ctx.setVariable("categories", allCategories);
+        ctx.setVariable("hello", var);
 
-        templateEngine.process("categories/list",ctx,writer);
+        templateEngine.process("home",ctx,writer);
 
     }
 }
