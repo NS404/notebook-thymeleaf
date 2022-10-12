@@ -13,7 +13,7 @@ public class ControllerMappings {
 
     static {
         controllersByUrl = new HashMap<>();
-        controllersByUrl.put("/templates/home.html",new HomeController());
+        controllersByUrl.put("/Notebook/public/index.html",new HomeController());
 
     }
 

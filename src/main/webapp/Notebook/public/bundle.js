@@ -75,6 +75,10 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
         newNotePopup.classList.remove('active');
         overlay.classList.remove('active');
     }
+    //renderCategories(categories);
+    //selectCategory(categories[0]);
+    // @ts-ignore
+    //renderNotes(selectedCategory);
     function createNote() {
         if (selectedCategory !== undefined) {
             let noteTitleInput = document.getElementById('newNoteTitle');
@@ -96,7 +100,7 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
             catNameInput.value = '';
             let notes = [];
             let newCategory = new Category_1.Category(categoryName, notes);
-            selectedCategory = newCategory;
+            exports_3("selectedCategory", selectedCategory = newCategory);
             saveCategory(newCategory);
             selectCategory(newCategory);
         }
@@ -141,13 +145,10 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
             let notesCount = document.createElement('p');
             notesCount.classList.add('noteCount');
             notesCount.innerText = String(cat.notes.length);
-            let selectedIndicatorDiv = document.createElement('div');
-            selectedIndicatorDiv.classList.add('selectedIndicator');
             let deleteCatButton = document.createElement('button');
             deleteCatButton.classList.add('deleteCatButton');
             deleteCatButton.innerHTML = '<i class="fa fa-light fa-trash"></i>';
             deleteCatButton.addEventListener('click', deleteCategory);
-            categoryDiv.appendChild(selectedIndicatorDiv);
             categoryDiv.appendChild(deleteCatButton);
             categoryDiv.appendChild(categoryName);
             categoryDiv.appendChild(notesCount);
@@ -155,6 +156,7 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
             categoryDiv.addEventListener('click', clickCategory);
         });
     }
+    exports_3("renderCategories", renderCategories);
     function renderNotes(category) {
         if (category !== undefined) {
             let notes = category.notes;
@@ -178,12 +180,13 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
             });
         }
     }
+    exports_3("renderNotes", renderNotes);
     function clickCategory(e) {
         let clickedCategory = e.target;
         let categoryName = clickedCategory.querySelector('.categoryName').innerText;
         categories.forEach(cat => {
             if (categoryName == cat.name) {
-                selectedCategory = cat;
+                exports_3("selectedCategory", selectedCategory = cat);
             }
         });
         toggleCategories(clickedCategory);
@@ -236,14 +239,14 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
     }
     function deSelectedCategory() {
         // @ts-ignore
-        selectedCategory = undefined;
+        exports_3("selectedCategory", selectedCategory = undefined);
         let categories = catDiv.children;
         for (let i = 0; i < categories.length; i++) {
             categories[i].classList.remove('selectedCategory');
         }
     }
     function selectCategory(category) {
-        selectedCategory = category;
+        exports_3("selectedCategory", selectedCategory = category);
         let catElms = catDiv.children;
         for (let i = 0; i < catElms.length; i++) {
             let catTitle = catElms[i].querySelector('.categoryName').innerText;
@@ -252,6 +255,7 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
             }
         }
     }
+    exports_3("selectCategory", selectCategory);
     function reRenderNotes(cat) {
         notesDiv.innerHTML = '';
         renderNotes(cat);
@@ -282,11 +286,7 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
             closeNewNoteButton.addEventListener('click', closeNewNotePopup);
             newNotePopup = document.getElementById('newNoteDiv');
             overlay = document.getElementById('overlay');
-            //categories = getCategories();
-            //renderCategories(categories);
-            //selectCategory(categories[0]);
-            // @ts-ignore
-            //renderNotes(selectedCategory);
         }
     };
 });
+//# sourceMappingURL=bundle.js.map

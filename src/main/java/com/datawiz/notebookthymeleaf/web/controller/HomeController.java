@@ -22,13 +22,14 @@ public class HomeController implements INotebookController {
     public void process(IWebExchange webExchange, ITemplateEngine templateEngine, Writer writer) {
 
         final CategoryService categoryService = new CategoryService();
-        final List<Category> allCategories = categoryService.findAll();
+        final Object[] allCategories = categoryService.findAll().toArray();
+
 
         final WebContext ctx = new WebContext(webExchange, webExchange.getLocale());
         ctx.setVariable("categories", allCategories);
         ctx.setVariable("hello", var);
 
-        templateEngine.process("home",ctx,writer);
+        templateEngine.process("index",ctx,writer);
 
     }
 }

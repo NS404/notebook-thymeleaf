@@ -31,13 +31,14 @@ function closeNewNotePopup() {
 }
 
 
-let categories: Category[] = getCategories();
-let selectedCategory: Category;
+export var categories: Category[];
 
-renderCategories(categories);
-selectCategory(categories[0]);
+export var selectedCategory: Category;
+
+//renderCategories(categories);
+//selectCategory(categories[0]);
 // @ts-ignore
-renderNotes(selectedCategory);
+//renderNotes(selectedCategory);
 
 
 function createNote() {
@@ -130,7 +131,7 @@ function getCategories(): Category[] {
 
 }
 
-function renderCategories(categories: Category[]){
+export function renderCategories(categories: Category[]){
 
 
     categories.forEach(cat => {
@@ -146,15 +147,11 @@ function renderCategories(categories: Category[]){
         notesCount.classList.add('noteCount');
         notesCount.innerText = String(cat.notes.length);
 
-        let selectedIndicatorDiv = document.createElement('div');
-        selectedIndicatorDiv.classList.add('selectedIndicator');
-
         let deleteCatButton = document.createElement('button');
         deleteCatButton.classList.add('deleteCatButton');
         deleteCatButton.innerHTML = '<i class="fa fa-light fa-trash"></i>';
         deleteCatButton.addEventListener('click',deleteCategory);
 
-        categoryDiv.appendChild(selectedIndicatorDiv);
         categoryDiv.appendChild(deleteCatButton);
         categoryDiv.appendChild(categoryName);
         categoryDiv.appendChild(notesCount);
@@ -168,7 +165,7 @@ function renderCategories(categories: Category[]){
 
 }
 
-function renderNotes(category: Category) {
+export function renderNotes(category: Category) {
 
     if(category !== undefined) {
         let notes = category.notes;
@@ -303,7 +300,7 @@ function deSelectedCategory(){
 
 }
 
-function selectCategory(category: Category) {
+export function selectCategory(category: Category) {
 
     selectedCategory = category;
 
@@ -328,5 +325,4 @@ function reRenderCategories(){
     catDiv.innerHTML = '';
     renderCategories(categories);
 }
-
 
