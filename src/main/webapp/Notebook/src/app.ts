@@ -40,6 +40,37 @@ export var selectedCategory: Category;
 // @ts-ignore
 //renderNotes(selectedCategory);
 
+addCategoryListeners();
+addDeleteCatButtonListeners();
+
+function addDeleteCatButtonListeners(){
+
+    $(".deleteCatButton").click(function() {
+        // @ts-ignore
+        deleteCategory(event);
+
+    } )
+
+}
+
+function addDeleteNoteButtonListeners(){
+
+    $(".deleteNoteButton").click(function() {
+        // @ts-ignore
+        deleteNote(event);
+    });
+
+}
+
+
+
+function addCategoryListeners() {
+    let categoryDivs = document.getElementsByClassName("category");
+
+    for (let i = 0; i < categoryDivs.length; i++) {
+        categoryDivs[i].addEventListener('click',clickCategory);
+    }
+}
 
 function createNote() {
 
@@ -74,10 +105,7 @@ function createCategory() {
                     $("#categoriesDiv").empty();
                     $("#categoriesDiv").append(data);
                 });
-
-
     }
-
 }
 
 function updateNoteCount(category: Category) {
@@ -129,7 +157,7 @@ function getCategories(): Category[] {
 
 }
 
-export function renderCategories(categories: Category[]){
+function renderCategories(categories: Category[]){
 
 
     categories.forEach(cat => {
@@ -163,7 +191,7 @@ export function renderCategories(categories: Category[]){
 
 }
 
-export function renderNotes(category: Category) {
+function renderNotes(category: Category) {
 
     if(category !== undefined) {
         let notes = category.notes;
@@ -198,20 +226,31 @@ export function renderNotes(category: Category) {
 
 }
 
-function clickCategory(e: Event){
+export function clickCategory(e: Event){
 
     let clickedCategory = e.target as Element;
 
-    let categoryName = (clickedCategory.querySelector('.categoryName') as HTMLElement).innerText;
+    let categoryName = (clickedCategory.querySelector('.categoryName') as HTMLElement).innerHTML;
 
-    categories.forEach(cat => {
-        if(categoryName == cat.name){
-            selectedCategory = cat;
+    console.log(categoryName.trim());
+
+    $.ajax({
+        async: false,
+        type: "GET",
+        url: "/Notes",
+        data: {categoryName: categoryName} ,
+        success: function (data,status) {
+
+            alert("Data: " + data + " Status: " + status);
+            $("#notesDiv").empty();
+            $("#notesDiv").append(data);
+            toggleCategories(clickedCategory);
+
         }
-
     });
-    toggleCategories(clickedCategory);
-    reRenderNotes(selectedCategory);
+
+    addDeleteNoteButtonListeners();
+
 }
 
 function toggleCategories(categoryElm: Element){
@@ -238,49 +277,42 @@ function deleteCategory(event: Event) {
 
         let category = item.parentElement as HTMLElement;
         let categoryName: string = (category.querySelector('.categoryName') as HTMLElement).innerText;
-        category.remove();
 
+        console.log(categoryName);
 
+        event.stopPropagation();
 
-        categories.forEach(cat => {
-            if(cat.name === categoryName){
-                categories.splice(categories.indexOf(cat),1);
-            }
-        });
-
-        localStorage.setItem('categories',JSON.stringify(categories));
-
-        if(selectedCategory.name === categoryName) {
-
-
-            deSelectedCategory();
-
-        }
-
-        reRenderNotes(selectedCategory);
+        // category.remove();
+        // if(selectedCategory.name === categoryName) {
+        //     deSelectedCategory();
+        // }
+       // reRenderNotes(selectedCategory);
 
     }
 
 
 }
 
-function deleteNote(event: Event) {
-    const item = event.target as Element;
+function deleteNote(event: Event | undefined) {
+    const item = (event as Event).target as Element;
 
     if(item.classList[0] === 'deleteNoteButton') {
         const note = item.parentElement as HTMLElement;
         let noteTitle: string = (note.querySelector('.noteTitle') as HTMLElement).innerText;
 
-        let notes = selectedCategory.notes;
-
-        notes.forEach(note => {
-            if(noteTitle == note.title) {
-                notes.splice(notes.indexOf(note),1);
+        $.ajax({
+            async: false,
+            type: "DELETE",
+            url: "/Notes",
+            data: {noteTitle: noteTitle},
+            success: function (response) {
+                note.remove();
             }
         });
-        localStorage.setItem('categories', JSON.stringify(categories));
-        updateNoteCount(selectedCategory);
-        reRenderNotes(selectedCategory);
+
+
+       // updateNoteCount(selectedCategory);
+       // reRenderNotes(selectedCategory);
 
     }
 }
@@ -298,7 +330,7 @@ function deSelectedCategory(){
 
 }
 
-export function selectCategory(category: Category) {
+function selectCategory(category: Category) {
 
     selectedCategory = category;
 

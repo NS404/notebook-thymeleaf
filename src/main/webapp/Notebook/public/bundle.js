@@ -75,10 +75,24 @@ System.register("app", ["Note"], function (exports_3, context_3) {
         newNotePopup.classList.remove('active');
         overlay.classList.remove('active');
     }
-    //renderCategories(categories);
-    //selectCategory(categories[0]);
-    // @ts-ignore
-    //renderNotes(selectedCategory);
+    function addDeleteCatButtonListeners() {
+        $(".deleteCatButton").click(function () {
+            // @ts-ignore
+            deleteCategory(event);
+        });
+    }
+    function addDeleteNoteButtonListeners() {
+        $(".deleteNoteButton").click(function () {
+            // @ts-ignore
+            deleteNote(event);
+        });
+    }
+    function addCategoryListeners() {
+        let categoryDivs = document.getElementsByClassName("category");
+        for (let i = 0; i < categoryDivs.length; i++) {
+            categoryDivs[i].addEventListener('click', clickCategory);
+        }
+    }
     function createNote() {
         if (selectedCategory !== undefined) {
             let noteTitleInput = document.getElementById('newNoteTitle');
@@ -156,7 +170,6 @@ System.register("app", ["Note"], function (exports_3, context_3) {
             categoryDiv.addEventListener('click', clickCategory);
         });
     }
-    exports_3("renderCategories", renderCategories);
     function renderNotes(category) {
         if (category !== undefined) {
             let notes = category.notes;
@@ -180,18 +193,25 @@ System.register("app", ["Note"], function (exports_3, context_3) {
             });
         }
     }
-    exports_3("renderNotes", renderNotes);
     function clickCategory(e) {
         let clickedCategory = e.target;
-        let categoryName = clickedCategory.querySelector('.categoryName').innerText;
-        categories.forEach(cat => {
-            if (categoryName == cat.name) {
-                exports_3("selectedCategory", selectedCategory = cat);
+        let categoryName = clickedCategory.querySelector('.categoryName').innerHTML;
+        console.log(categoryName.trim());
+        $.ajax({
+            async: false,
+            type: "GET",
+            url: "/Notes",
+            data: { categoryName: categoryName },
+            success: function (data, status) {
+                alert("Data: " + data + " Status: " + status);
+                $("#notesDiv").empty();
+                $("#notesDiv").append(data);
+                toggleCategories(clickedCategory);
             }
         });
-        toggleCategories(clickedCategory);
-        reRenderNotes(selectedCategory);
+        addDeleteNoteButtonListeners();
     }
+    exports_3("clickCategory", clickCategory);
     function toggleCategories(categoryElm) {
         let categories = catDiv.children;
         for (let i = 0; i < categories.length; i++) {
@@ -208,17 +228,13 @@ System.register("app", ["Note"], function (exports_3, context_3) {
         if (item.classList[0] === 'deleteCatButton') {
             let category = item.parentElement;
             let categoryName = category.querySelector('.categoryName').innerText;
-            category.remove();
-            categories.forEach(cat => {
-                if (cat.name === categoryName) {
-                    categories.splice(categories.indexOf(cat), 1);
-                }
-            });
-            localStorage.setItem('categories', JSON.stringify(categories));
-            if (selectedCategory.name === categoryName) {
-                deSelectedCategory();
-            }
-            reRenderNotes(selectedCategory);
+            console.log(categoryName);
+            event.stopPropagation();
+            // category.remove();
+            // if(selectedCategory.name === categoryName) {
+            //     deSelectedCategory();
+            // }
+            // reRenderNotes(selectedCategory);
         }
     }
     function deleteNote(event) {
@@ -226,15 +242,10 @@ System.register("app", ["Note"], function (exports_3, context_3) {
         if (item.classList[0] === 'deleteNoteButton') {
             const note = item.parentElement;
             let noteTitle = note.querySelector('.noteTitle').innerText;
-            let notes = selectedCategory.notes;
-            notes.forEach(note => {
-                if (noteTitle == note.title) {
-                    notes.splice(notes.indexOf(note), 1);
-                }
-            });
-            localStorage.setItem('categories', JSON.stringify(categories));
-            updateNoteCount(selectedCategory);
-            reRenderNotes(selectedCategory);
+            //let notes = selectedCategory.notes;
+            console.log(noteTitle);
+            // updateNoteCount(selectedCategory);
+            // reRenderNotes(selectedCategory);
         }
     }
     function deSelectedCategory() {
@@ -255,7 +266,6 @@ System.register("app", ["Note"], function (exports_3, context_3) {
             }
         }
     }
-    exports_3("selectCategory", selectCategory);
     function reRenderNotes(cat) {
         notesDiv.innerHTML = '';
         renderNotes(cat);
@@ -283,6 +293,12 @@ System.register("app", ["Note"], function (exports_3, context_3) {
             closeNewNoteButton.addEventListener('click', closeNewNotePopup);
             newNotePopup = document.getElementById('newNoteDiv');
             overlay = document.getElementById('overlay');
+            //renderCategories(categories);
+            //selectCategory(categories[0]);
+            // @ts-ignore
+            //renderNotes(selectedCategory);
+            addCategoryListeners();
+            addDeleteCatButtonListeners();
         }
     };
 });
