@@ -63,9 +63,9 @@ System.register("Category", [], function (exports_2, context_2) {
         }
     };
 });
-System.register("app", ["Category", "Note"], function (exports_3, context_3) {
+System.register("app", ["Note"], function (exports_3, context_3) {
     "use strict";
-    var Category_1, Note_1, notesDiv, catDiv, writeNoteButton, newCategoryButton, openNewNoteButton, closeNewNoteButton, newNotePopup, overlay, categories, selectedCategory;
+    var Note_1, notesDiv, catDiv, writeNoteButton, newCategoryButton, openNewNoteButton, closeNewNoteButton, newNotePopup, overlay, categories, selectedCategory;
     var __moduleName = context_3 && context_3.id;
     function openNewNotePopup() {
         newNotePopup.classList.add('active');
@@ -98,11 +98,11 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
         let categoryName = catNameInput.value;
         if (categoryName.trim().length) {
             catNameInput.value = '';
-            let notes = [];
-            let newCategory = new Category_1.Category(categoryName, notes);
-            exports_3("selectedCategory", selectedCategory = newCategory);
-            saveCategory(newCategory);
-            selectCategory(newCategory);
+            $.post("/Categories/create", { name: categoryName }, function (data, status) {
+                alert("Data: " + data + " Status: " + status);
+                $("#categoriesDiv").empty();
+                $("#categoriesDiv").append(data);
+            });
         }
     }
     function updateNoteCount(category) {
@@ -266,9 +266,6 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
     }
     return {
         setters: [
-            function (Category_1_1) {
-                Category_1 = Category_1_1;
-            },
             function (Note_1_1) {
                 Note_1 = Note_1_1;
             }

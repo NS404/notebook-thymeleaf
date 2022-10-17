@@ -14,4 +14,8 @@ public class CategoryService {
     public Category findById(int id){
         return Repository.getInstance().findById(id);
     }
+
+    public void saveCategory(Category newCategory) {
+        Repository.getInstance().save(newCategory);
+    }
 }

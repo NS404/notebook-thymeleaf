@@ -21,8 +21,8 @@ public class HomeController implements INotebookController {
     @Override
     public void process(IWebExchange webExchange, ITemplateEngine templateEngine, Writer writer) {
 
-        final CategoryService categoryService = new CategoryService();
-        final Object[] allCategories = categoryService.findAll().toArray();
+         final CategoryService categoryService = new CategoryService();
+         List<Category> allCategories = categoryService.findAll();
 
 
         final WebContext ctx = new WebContext(webExchange, webExchange.getLocale());

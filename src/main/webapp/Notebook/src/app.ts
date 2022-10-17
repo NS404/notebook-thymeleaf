@@ -69,15 +69,13 @@ function createCategory() {
 
         catNameInput.value = '';
 
-        let notes: Note[] = [];
+            $.post("/Categories/create", {name : categoryName}, function (data, status) {
+                    alert("Data: " + data + " Status: " + status);
+                    $("#categoriesDiv").empty();
+                    $("#categoriesDiv").append(data);
+                });
 
-        let newCategory: Category = new Category(categoryName, notes);
 
-        selectedCategory = newCategory;
-
-        saveCategory(newCategory);
-
-        selectCategory(newCategory);
     }
 
 }
