@@ -1,8 +1,5 @@
-import {Category} from "./Category";
-import {Note} from "./Note";
 
-let notesDiv = document.getElementById('notesDiv') as Element;
-let catDiv = document.getElementById('categoriesDiv') as Element;
+let context: string = "/thymeleaf";
 
 let writeNoteButton = document.getElementById('writeNoteButton') as HTMLButtonElement;
 writeNoteButton.addEventListener('click', createNote);
@@ -19,29 +16,22 @@ closeNewNoteButton.addEventListener('click',closeNewNotePopup);
 let newNotePopup = document.getElementById('newNoteDiv') as HTMLElement;
 let overlay = document.getElementById('overlay') as HTMLElement;
 
-function openNewNotePopup() {
-    newNotePopup.classList.add('active');
-    overlay.classList.add('active');
+addCategoryListeners();
 
-}
+addDeleteNoteButtonListeners();
+
+
 
 function closeNewNotePopup() {
     newNotePopup.classList.remove('active');
     overlay.classList.remove('active');
 }
 
+function openNewNotePopup() {
+    newNotePopup.classList.add('active');
+    overlay.classList.add('active');
 
-export var categories: Category[];
-
-export var selectedCategory: Category;
-
-//renderCategories(categories);
-//selectCategory(categories[0]);
-// @ts-ignore
-//renderNotes(selectedCategory);
-
-addCategoryListeners();
-addDeleteCatButtonListeners();
+}
 
 function addDeleteCatButtonListeners(){
 
@@ -62,34 +52,43 @@ function addDeleteNoteButtonListeners(){
 
 }
 
-
-
 function addCategoryListeners() {
-    let categoryDivs = document.getElementsByClassName("category");
-
-    for (let i = 0; i < categoryDivs.length; i++) {
-        categoryDivs[i].addEventListener('click',clickCategory);
-    }
+    $(".category").click(function () {
+        // @ts-ignore
+        clickCategory(event);
+    })
+    addDeleteCatButtonListeners();
 }
 
 function createNote() {
 
-    if(selectedCategory !== undefined) {
+
 
         let noteTitleInput = document.getElementById('newNoteTitle') as HTMLInputElement
         let noteContentInput = document.getElementById('noteContentArea') as HTMLInputElement
 
         if (noteTitleInput.value.trim().length  && noteContentInput.value.trim().length) {
 
-            let newNoteTitle: string = (document.getElementById('newNoteTitle') as HTMLInputElement).value;
+            let noteTitle: string = (document.getElementById('newNoteTitle') as HTMLInputElement).value;
             (document.getElementById('newNoteTitle') as HTMLInputElement).value = '';
-            let newNoteContent: string = (document.getElementById('noteContentArea') as HTMLInputElement).value;
+            let noteContent: string = (document.getElementById('noteContentArea') as HTMLInputElement).value;
             (document.getElementById('noteContentArea') as HTMLInputElement).value = '';
-            let newNote = new Note(newNoteTitle, newNoteContent, selectedCategory.name);
 
-            saveNote(newNote);
+            $.ajax({
+                async: false,
+                type: "POST",
+                data: {noteTitle: noteTitle , noteContent: noteContent},
+                url: context+"/Notes",
+                success: function (data) {
+                    $("#notesDiv").replaceWith(data);
+                    addDeleteNoteButtonListeners();
+                    updateCategories();
+                }
+            });
+
+
         }
-    }
+
 }
 
 function createCategory() {
@@ -100,130 +99,12 @@ function createCategory() {
 
         catNameInput.value = '';
 
-            $.post("/Categories/create", {name : categoryName}, function (data, status) {
-                    alert("Data: " + data + " Status: " + status);
+            $.post(context+"/Categories/create", {name : categoryName}, function (data, status) {
                     $("#categoriesDiv").empty();
                     $("#categoriesDiv").append(data);
+                    addCategoryListeners();
                 });
     }
-}
-
-function updateNoteCount(category: Category) {
-
-    let catElms = catDiv.children;
-
-    for (let i = 0; i < catElms.length; i++) {
-
-        let categoryName  = (catElms[i].querySelector('.categoryName') as HTMLElement).innerText;
-
-        if(category.name === categoryName) {
-
-            (catElms[i].querySelector('.noteCount') as HTMLElement).innerText = String(category.notes.length);
-
-        }
-    }
-
-}
-
-function saveCategory(category: Category) {
-
-    categories.push(category);
-    localStorage.setItem('categories',JSON.stringify(categories));
-    reRenderCategories();
-    reRenderNotes(selectedCategory);
-
-}
-
-function saveNote(newNote: Note) {
-
-    selectedCategory.notes.push(newNote);
-
-    localStorage.setItem('categories',JSON.stringify(categories));
-
-    updateNoteCount(selectedCategory);
-
-    reRenderNotes(selectedCategory);
-
-}
-
-function getCategories(): Category[] {
-
-    if(localStorage.length !== 0) {
-        let cats: any = localStorage.getItem('categories');
-        return JSON.parse(cats);
-    }else {
-        return []
-    }
-
-}
-
-function renderCategories(categories: Category[]){
-
-
-    categories.forEach(cat => {
-
-        let categoryDiv = document.createElement('div');
-        categoryDiv.classList.add('category');
-
-        let categoryName = document.createElement('h3');
-        categoryName.classList.add('categoryName');
-        categoryName.innerText = cat.name;
-
-        let notesCount = document.createElement('p');
-        notesCount.classList.add('noteCount');
-        notesCount.innerText = String(cat.notes.length);
-
-        let deleteCatButton = document.createElement('button');
-        deleteCatButton.classList.add('deleteCatButton');
-        deleteCatButton.innerHTML = '<i class="fa fa-light fa-trash"></i>';
-        deleteCatButton.addEventListener('click',deleteCategory);
-
-        categoryDiv.appendChild(deleteCatButton);
-        categoryDiv.appendChild(categoryName);
-        categoryDiv.appendChild(notesCount);
-        catDiv.appendChild(categoryDiv);
-
-        categoryDiv.addEventListener('click',clickCategory);
-
-    });
-
-
-
-}
-
-function renderNotes(category: Category) {
-
-    if(category !== undefined) {
-        let notes = category.notes;
-
-        notes.forEach(note => {
-
-            let noteDiv = document.createElement('div');
-            noteDiv.classList.add('note');
-
-            let noteTitle = document.createElement('h3');
-            noteTitle.classList.add('noteTitle');
-            noteTitle.innerText = note.title;
-
-            let noteContent = document.createElement('p');
-            noteContent.classList.add('noteContent');
-            noteContent.innerText = note.content;
-
-            let deleteNoteButton = document.createElement('button');
-            deleteNoteButton.classList.add('deleteNoteButton');
-            deleteNoteButton.innerHTML = '<i class="fa fa-light fa-trash"></i>'
-            deleteNoteButton.addEventListener('click', deleteNote);
-
-
-            noteDiv.appendChild(noteTitle);
-            noteDiv.appendChild(noteContent);
-            noteDiv.appendChild(deleteNoteButton);
-            notesDiv.appendChild(noteDiv);
-
-
-        });
-    }
-
 }
 
 export function clickCategory(e: Event){
@@ -232,30 +113,30 @@ export function clickCategory(e: Event){
 
     let categoryName = (clickedCategory.querySelector('.categoryName') as HTMLElement).innerHTML;
 
+    let categoryId: string = clickedCategory.getAttribute("data-id") as string;
+
     console.log(categoryName.trim());
 
     $.ajax({
         async: false,
         type: "GET",
-        url: "/Notes",
+        url: context+"/Notes",
         data: {categoryName: categoryName} ,
-        success: function (data,status) {
-
-            alert("Data: " + data + " Status: " + status);
+        success: function (data) {
             $("#notesDiv").empty();
             $("#notesDiv").append(data);
             toggleCategories(clickedCategory);
-
+            addDeleteNoteButtonListeners();
         }
     });
 
-    addDeleteNoteButtonListeners();
+
 
 }
 
 function toggleCategories(categoryElm: Element){
 
-    let categories = catDiv.children;
+    let categories = document.getElementsByClassName('category');
 
     for (let i = 0; i < categories.length; i++) {
         if(categoryElm === categories[i]) {
@@ -276,9 +157,23 @@ function deleteCategory(event: Event) {
     if(item.classList[0] === 'deleteCatButton') {
 
         let category = item.parentElement as HTMLElement;
-        let categoryName: string = (category.querySelector('.categoryName') as HTMLElement).innerText;
 
-        console.log(categoryName);
+        if(!category.classList.contains('selectedCategory')) {
+
+            let categoryId: string = category.getAttribute('data-id') as string;
+
+            $.ajax({
+                async: false,
+                type: "DELETE",
+                url: context+'/Categories?' + $.param({"categoryId": categoryId}),
+                success: function (response) {
+                    category.remove();
+                }
+            });
+
+        }
+
+
 
         event.stopPropagation();
 
@@ -293,66 +188,36 @@ function deleteCategory(event: Event) {
 
 }
 
-function deleteNote(event: Event | undefined) {
+function deleteNote(event: Event) {
     const item = (event as Event).target as Element;
 
     if(item.classList[0] === 'deleteNoteButton') {
         const note = item.parentElement as HTMLElement;
-        let noteTitle: string = (note.querySelector('.noteTitle') as HTMLElement).innerText;
+
+        let noteId: string = note.getAttribute("data-id") as string;
+
+        console.log(noteId);
 
         $.ajax({
             async: false,
             type: "DELETE",
-            url: "/Notes",
-            data: {noteTitle: noteTitle},
+            url: context+'/Notes?' + $.param({"noteId": noteId}),
             success: function (response) {
                 note.remove();
+                updateCategories();
             }
         });
-
-
-       // updateNoteCount(selectedCategory);
-       // reRenderNotes(selectedCategory);
-
     }
 }
 
-function deSelectedCategory(){
-    // @ts-ignore
-    selectedCategory = undefined;
-
-    let categories = catDiv.children;
-
-    for (let i = 0; i < categories.length; i++) {
-            categories[i].classList.remove('selectedCategory');
-
-    }
-
-}
-
-function selectCategory(category: Category) {
-
-    selectedCategory = category;
-
-    let catElms = catDiv.children;
-
-    for (let i = 0; i < catElms.length; i++) {
-        let catTitle = (catElms[i].querySelector('.categoryName') as HTMLElement).innerText;
-
-        if(catTitle === category.name) {
-            toggleCategories(catElms[i]);
+function updateCategories(){
+    $.ajax({
+        async: false,
+        type: "GET",
+        url: context+"/Categories",
+        success: function (data) {
+            $("#categoriesDiv").replaceWith(data);
+            addCategoryListeners();
         }
-    }
-
+    });
 }
-
-function reRenderNotes(cat: Category){
-    notesDiv.innerHTML = '';
-    renderNotes(cat);
-}
-
-function reRenderCategories(){
-    catDiv.innerHTML = '';
-    renderCategories(categories);
-}
-

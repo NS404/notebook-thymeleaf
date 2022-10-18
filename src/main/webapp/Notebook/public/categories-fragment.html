@@ -3,7 +3,7 @@
 <body>
 
 <div id="categoriesDiv" th:fragment="cats">
-    <div class="category" th:if="${!categories.isEmpty() and categories != null}" th:each="cat : ${categories}">
+    <div th:attr="data-id=${cat.id}"  class="category" th:classappend="${cat.name == selectedCat} ? selectedCategory"  th:if="${!categories.isEmpty() and categories != null}" th:each="cat : ${categories}">
         <button class="deleteCatButton">
             <i class="fa fa-light fa-trash"></i>
         </button>
@@ -12,11 +12,5 @@
     </div>
 </div>
 
-<script type="module">
-    System.import('clickCategory');
-    for (const elementsByClassNameElement of document.getElementsByClassName("category")) {
-        elementsByClassNameElement.addEventListener('click', clickCategory);
-    }
-</script>
 </body>
 </html>

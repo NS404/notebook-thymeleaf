@@ -3,7 +3,7 @@
 <body>
 
 <div id="notesDiv" th:fragment="notes">
-    <div class="note" th:if="${!notes.isEmpty() and notes != null}" th:each="note : ${notes}">
+    <div th:attr="data-id=${note.id}" class="note" th:if="${!notes.isEmpty() and notes != null}" th:each="note : ${notes}">
         <h3 class="noteTitle" th:text="${note.title}">Note Title</h3>
         <p class="noteContent" th:text="${note.content}">Note Content</p>
         <button class="deleteNoteButton">

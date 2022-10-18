@@ -28,15 +28,15 @@ public class Repository {
         Note note3 = new Note(3,"title","contentOfCat1Notes","category1");
         Note note4 = new Note(4,"title","contentOfCat1Notes","category1");
 
-        Note note5 = new Note(5,"title","contentOfCat2Notes","category2");
-        Note note6 = new Note(6,"title","contentOfCat2Notes","category2");
-        Note note7 = new Note(7,"title","contentOfCat2Notes","category2");
-        Note note8 = new Note(8,"title","contentOfCat2Notes","category2");
+        Note note5 = new Note(1,"title","contentOfCat2Notes","category2");
+        Note note6 = new Note(2,"title","contentOfCat2Notes","category2");
+        Note note7 = new Note(3,"title","contentOfCat2Notes","category2");
+        Note note8 = new Note(4,"title","contentOfCat2Notes","category2");
 
-        Note note9 = new Note(9,"title","contentOfCat3Notes","category3");
-        Note note10 = new Note(10,"title","contentOfCat3Notes","category3");
-        Note note11 = new Note(11,"title","contentOfCat3Notes","category3");
-        Note note12 = new Note(12,"title","contentOfCat3Notes","category3");
+        Note note9 = new Note(1,"title","contentOfCat3Notes","category3");
+        Note note10 = new Note(2,"title","contentOfCat3Notes","category3");
+        Note note11 = new Note(3,"title","contentOfCat3Notes","category3");
+        Note note12 = new Note(4,"title","contentOfCat3Notes","category3");
 
         List<Note> notesOfCategory1 = new ArrayList<>();
         notesOfCategory1.add(note1);
@@ -80,5 +80,14 @@ public class Repository {
 
     public Category findById(int id){
         return this.categoryById.get(id);
+    }
+
+    public void deleteCategory(int categoryId) {
+        categoryById.remove(categoryId);
+    }
+
+    public void deleteNote(Category selectedCategory, int noteId) {
+        List<Note> notes = categoryById.get(selectedCategory.getId()).getNotes();
+        notes.removeIf(note -> note.getId() == noteId);
     }
 }

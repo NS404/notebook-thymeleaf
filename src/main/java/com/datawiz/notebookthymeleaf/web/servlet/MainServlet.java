@@ -1,10 +1,12 @@
 package com.datawiz.notebookthymeleaf.web.servlet;
 
 import com.datawiz.notebookthymeleaf.business.entities.Category;
+import com.datawiz.notebookthymeleaf.business.entities.Note;
 import com.datawiz.notebookthymeleaf.business.services.CategoryService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
+import org.springframework.stereotype.Controller;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
@@ -18,14 +20,17 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "MainServlet", value ={"/Notebook"})
+@Controller
+@WebServlet(name = "MainServlet", value ={"/Notebook"}, loadOnStartup = 1)
 public class MainServlet extends HttpServlet {
 
     private ITemplateEngine templateEngine;
 
     private JakartaServletWebApplication application;
 
-    private CategoryService categoryService = new CategoryService(); ;
+    private final CategoryService categoryService = CategoryService.getINSTANCE();
+
+
 
 
 
@@ -33,8 +38,6 @@ public class MainServlet extends HttpServlet {
     public void init() throws ServletException {
         this.application = JakartaServletWebApplication.buildApplication(getServletContext());
         this.templateEngine = buildTemplateEngine(this.application);
-
-
 
     }
 
@@ -47,7 +50,11 @@ public class MainServlet extends HttpServlet {
 
         final WebContext ctx = new WebContext(webExchange, webExchange.getLocale());
         List<Category> allCategories = categoryService.findAll();
+        List<Note> notes = categoryService.getSelectedCategory().getNotes();
+        String selectedCategory = categoryService.getSelectedCategory().getName();
         ctx.setVariable("categories",allCategories);
+        ctx.setVariable("notes", notes);
+        ctx.setVariable("selectedCat", selectedCategory);
 
 
         templateEngine.process("index",ctx,response.getWriter());

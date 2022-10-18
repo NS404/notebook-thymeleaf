@@ -20,13 +20,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@WebServlet(name = "CategoriesServlet", value = {"/Categories/create"})
+@WebServlet(name = "CategoriesServlet", value = {"/Categories/create","/Categories"})
 public class CategoriesServlet extends HttpServlet {
 
     private JakartaServletWebApplication application;
     private ITemplateEngine templateEngine;
 
-    private final CategoryService categoryService = new CategoryService();;
+    private final CategoryService categoryService = CategoryService.getINSTANCE();
 
 
     @Override
@@ -38,6 +38,23 @@ public class CategoriesServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        final IWebExchange webExchange = this.application.buildExchange(request, response);
+
+        final WebContext ctx = new WebContext(webExchange, webExchange.getLocale());
+
+        List<Category> allCategories = categoryService.findAll();
+        String selectedCategory = categoryService.getSelectedCategory().getName();
+
+        ctx.setVariable("categories",allCategories);
+        ctx.setVariable("selectedCat",selectedCategory);
+
+        System.out.println(selectedCategory);
+
+        Set<String> selectors = new HashSet<>();
+        selectors.add("cats");
+
+        templateEngine.process("categories-fragment",selectors, ctx, response.getWriter());
+
 
     }
 
@@ -48,15 +65,17 @@ public class CategoriesServlet extends HttpServlet {
 
         final WebContext ctx = new WebContext(webExchange, webExchange.getLocale());
 
-        String CategoryName = request.getParameter("name");
+        String categoryName = request.getParameter("name");
 
-        if(CategoryName != null) {
-            saveCategory(CategoryName);
+        if(categoryName != null) {
+            categoryService.saveCategory(categoryName);
         }
 
         List<Category> allCategories = categoryService.findAll();
+        String selectedCategory = categoryService.getSelectedCategory().getName();
 
         ctx.setVariable("categories",allCategories);
+        ctx.setVariable("selectedCat",selectedCategory);
 
         Set<String> selectors = new HashSet<>();
         selectors.add("cats");
@@ -66,12 +85,15 @@ public class CategoriesServlet extends HttpServlet {
 
     }
 
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-    private void saveCategory(String categoryName){
 
-        Category newCategory = new Category(10,categoryName, new ArrayList<>());
-        categoryService.saveCategory(newCategory);
+        String categoryId = req.getParameter("categoryId");
 
+        if(categoryId != null){
+            categoryService.deleteCategory(Integer.parseInt(categoryId));
+        }
 
     }
 

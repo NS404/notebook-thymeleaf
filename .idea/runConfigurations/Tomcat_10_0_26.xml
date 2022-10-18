@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Tomcat 10.0.26" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 10.0.26" ALTERNATIVE_JRE_ENABLED="false">
-    <option name="OPEN_IN_BROWSER_URL" value="http://localhost:8081/Notebook" />
+    <option name="OPEN_IN_BROWSER_URL" value="http://localhost:8081/thymeleaf/Notebook" />
     <deployment>
       <artifact name="notebook-thymeleaf:war exploded">
         <settings>
-          <option name="CONTEXT_PATH" value="" />
+          <option name="CONTEXT_PATH" value="/thymeleaf" />
         </settings>
       </artifact>
     </deployment>
